@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Sets the SLA target to 4 calendar hours from Case creation and initializes the SLA status as Within SLA for High Priority Cases.</description>
+        <name>Set_High_Priority_SLA_Target</name>
+        <label>Set High Priority SLA Target</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.SLA_Target__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>High_Priority_SLA_Target</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.SLA_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Within SLA</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_High_Priority_SLA</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Sets the SLA target to 3 calendar days from Case creation and initializes the SLA status as Within SLA for Low Priority Cases.</description>
+        <name>Set_Low_Priority_SLA_Target</name>
+        <label>Set Low Priority SLA Target</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.SLA_Target__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Low_Priority_SLA_Target</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Low_Priority_SLA</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Sets the SLA target to 1 calendar day from Case creation and initializes the SLA status as Within SLA for Medium Priority Cases.</description>
+        <name>Set_Medium_Priority_SLA_Target</name>
+        <label>Set Medium Priority SLA Target</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.SLA_Target__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Medium_Priority_SLA_Target</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.SLA_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Within SLA</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Medium_Priority_SLA</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Routes newly created Cases to the appropriate SLA calculation path based on Case Priority: High, Medium, or Low.</description>
+        <name>Route_by_Priority</name>
+        <label>Route by Priority</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>High_Priority</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Priority</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>High</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_High_Priority_SLA_Target</targetReference>
+            </connector>
+            <label>High Priority</label>
+        </rules>
+        <rules>
+            <name>Medium_Priority</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Priority</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Medium</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Medium_Priority_SLA_Target</targetReference>
+            </connector>
+            <label>Medium Priority</label>
+        </rules>
+        <rules>
+            <name>Low_Priority</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Priority</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Low</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Low_Priority_SLA_Target</targetReference>
+            </connector>
+            <label>Low Priority</label>
+        </rules>
+    </decisions>
+    <description>Automatically calculates the SLA target date/time and initializes SLA status for newly created Cases based on Case Priority.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Calculates the SLA target Date/Time for High Priority Cases by adding 4 calendar hours to the Case Created Date/Time.</description>
+        <name>High_Priority_SLA_Target</name>
+        <dataType>DateTime</dataType>
+        <expression>$Record.CreatedDate + (4/24)</expression>
+    </formulas>
+    <formulas>
+        <description>Calculates the SLA target as 3 calendar days from the Case creation date and time for Low Priority Cases.</description>
+        <name>Low_Priority_SLA_Target</name>
+        <dataType>DateTime</dataType>
+        <expression>$Record.CreatedDate + 3</expression>
+    </formulas>
+    <formulas>
+        <description>Calculates the SLA target as 1 calendar day from the Case creation date and time for Medium Priority Cases.</description>
+        <name>Medium_Priority_SLA_Target</name>
+        <dataType>DateTime</dataType>
+        <expression>$Record.CreatedDate + 1</expression>
+    </formulas>
+    <interviewLabel>Case SLA Management Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Case SLA Management Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Saves the calculated SLA target and SLA status to the triggering Case for High Priority Cases.</description>
+        <name>Update_High_Priority_SLA</name>
+        <label>Update High Priority SLA</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>SLA_Status__c</field>
+            <value>
+                <stringValue>Within SLA</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SLA_Target__c</field>
+            <value>
+                <elementReference>High_Priority_SLA_Target</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Saves the calculated SLA target and SLA status to the triggering Case for Low Priority Cases.</description>
+        <name>Update_Low_Priority_SLA</name>
+        <label>Update Low Priority SLA</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>SLA_Status__c</field>
+            <value>
+                <stringValue>Within SLA</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SLA_Target__c</field>
+            <value>
+                <elementReference>Low_Priority_SLA_Target</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Saves the calculated SLA target and SLA status to the triggering Case for Medium Priority Cases.</description>
+        <name>Update_Medium_Priority_SLA</name>
+        <label>Update Medium Priority SLA</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>SLA_Status__c</field>
+            <value>
+                <stringValue>Within SLA</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SLA_Target__c</field>
+            <value>
+                <elementReference>Medium_Priority_SLA_Target</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Route_by_Priority</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Priority</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>
