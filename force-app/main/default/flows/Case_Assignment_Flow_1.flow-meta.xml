@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Assigns the Case Owner to the Billing Support Queue.</description>
+        <name>Assign_Billing_Support_Queue</name>
+        <label>Assign Billing Support Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>BillingSupportQueueId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Billing_Support_Case_Owner</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Assigns the Case Owner to the General Support Queue.</description>
+        <name>Assign_General_Support_Queue</name>
+        <label>Assign General Support Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>GeneralSupportQueueId1</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_General_Support_Case_Owner</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Assigns the Case Owner to the Technical Support Queue.</description>
+        <name>Assign_Technical_Support_Queue</name>
+        <label>Assign Technical Support Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>TechnicalSupportQueueId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Technical_Support_Case_Owner</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Determines the Case assignment queue based on Service Category.</description>
+        <name>Route_by_Service_Category</name>
+        <label>Route by Service Category</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Technical_Support</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Service_Category__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Technical Support</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Technical_Support_Queue</targetReference>
+            </connector>
+            <label>Technical Support</label>
+        </rules>
+        <rules>
+            <name>Billing_Payments</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Service_Category__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Billing &amp; Payments</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Billing_Support_Queue</targetReference>
+            </connector>
+            <label>Billing &amp; Payments</label>
+        </rules>
+        <rules>
+            <name>General_Service_Request</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Service_Category__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>General Service Request</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_General_Support_Queue</targetReference>
+            </connector>
+            <label>General Service Request</label>
+        </rules>
+    </decisions>
+    <description>Automatically assigns newly created Cases to the appropriate support queue based on Service Category.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>BillingSupportQueueId</name>
+        <dataType>String</dataType>
+        <expression>{!Get_Billing_Support_Queue.Id}</expression>
+    </formulas>
+    <formulas>
+        <name>GeneralSupportQueueId</name>
+        <dataType>String</dataType>
+        <expression>{!Get_General_Support_Queue.Id}</expression>
+    </formulas>
+    <formulas>
+        <name>GeneralSupportQueueId1</name>
+        <dataType>String</dataType>
+        <expression>{!Get_General_Support_Queue.Id}</expression>
+    </formulas>
+    <formulas>
+        <name>TechnicalSupportQueueId</name>
+        <dataType>String</dataType>
+        <expression>{!Get_Technical_Support_Queue.Id}</expression>
+    </formulas>
+    <interviewLabel>Case Assignment Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Case Assignment Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Retrieves the Billing Support Queue record for Case assignment.</description>
+        <name>Get_Billing_Support_Queue</name>
+        <label>Get Billing Support Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Billing_Support_Queue</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Queue</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Billing Support Queue</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Group</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Retrieves the General Support Queue record for Case assignment.</description>
+        <name>Get_General_Support_Queue</name>
+        <label>Get General Support Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_General_Support_Queue</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Queue</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>General Support Queue</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Group</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Retrieves the Technical Support Queue record for Case assignment.</description>
+        <name>Get_Technical_Support_Queue</name>
+        <label>Get Technical Support Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Technical_Support_Queue</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Queue</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Technical Support Queue</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Group</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Saves the Case Owner assignment to the Billing Support Queue.</description>
+        <name>Update_Billing_Support_Case_Owner</name>
+        <label>Update Billing Support Case Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>BillingSupportQueueId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Saves the Case Owner assignment to the General Support Queue.</description>
+        <name>Update_General_Support_Case_Owner</name>
+        <label>Update General Support Case Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>GeneralSupportQueueId1</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Saves the Case Owner assignment to the Technical Support Queue.</description>
+        <name>Update_Technical_Support_Case_Owner</name>
+        <label>Update Technical Support Case Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>TechnicalSupportQueueId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Route_by_Service_Category</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Service_Category__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

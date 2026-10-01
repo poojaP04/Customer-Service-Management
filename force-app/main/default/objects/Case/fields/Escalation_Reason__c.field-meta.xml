@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Escalation_Reason__c</fullName>
+    <description>Captures the reason why the Case was escalated.</description>
+    <inlineHelpText>Select the reason for escalating this Case.</inlineHelpText>
+    <label>Escalation Reason</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>SLA Breach</fullName>
+                <default>false</default>
+                <label>SLA Breach</label>
+            </value>
+            <value>
+                <fullName>Critical Priority</fullName>
+                <default>false</default>
+                <label>Critical Priority</label>
+            </value>
+            <value>
+                <fullName>Customer Complaint</fullName>
+                <default>false</default>
+                <label>Customer Complaint</label>
+            </value>
+            <value>
+                <fullName>Repeated Issue</fullName>
+                <default>false</default>
+                <label>Repeated Issue</label>
+            </value>
+            <value>
+                <fullName>Manager Request</fullName>
+                <default>false</default>
+                <label>Manager Request</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
