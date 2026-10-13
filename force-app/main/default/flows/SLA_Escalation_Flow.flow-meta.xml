@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Sends a Salesforce custom notification to the responsible support team when a Case breaches its SLA.</description>
+        <name>Send_SLA_Breach_Notification</name>
+        <label>Send SLA Breach Notification</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>customNotificationAction</actionName>
+        <actionType>customNotificationAction</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>customNotifTypeId</name>
+            <value>
+                <stringValue>0MLgL000002WuvZWAS</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientIds</name>
+            <value>
+                <elementReference>Recipient_Ids</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>title</name>
+            <value>
+                <stringValue>SLA Breach Alert</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>body</name>
+            <value>
+                <stringValue>Case SLA has been breached. Please review the Case and take appropriate action.</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>targetId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Adds the Case owner queue ID to the notification recipient collection for SLA breach alerts.</description>
+        <name>Add_Case_Owner_to_Notification_Recipients</name>
+        <label>Add Case Owner to Notification Recipients</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Recipient_Ids</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Case_Owner_ID</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_SLA_Breach_Notification</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Checks whether the triggering Case has passed its SLA target and determines whether the Case requires SLA escalation.</description>
+        <name>Check_SLA_Status</name>
+        <label>Check SLA Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>SLA_Breached</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.SLA_Target__c</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_SLA_Breach</targetReference>
+            </connector>
+            <label>SLA Breached</label>
+        </rules>
+    </decisions>
+    <description>Runs daily to identify Cases whose SLA target has passed and that are still within SLA, then processes them for SLA violation and escalation.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Returns the ID of the Queue or User that owns the triggering Case for notification recipient targeting.</description>
+        <name>Case_Owner_ID</name>
+        <dataType>String</dataType>
+        <expression>$Record.OwnerId</expression>
+    </formulas>
+    <formulas>
+        <description>Returns the ID of the Queue or User that owns the triggering Case for notification recipient targeting.</description>
+        <name>Case_Owner_ID_1</name>
+        <dataType>String</dataType>
+        <expression>$Record.OwnerId</expression>
+    </formulas>
+    <interviewLabel>SLA Escalation Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SLA Escalation Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Updates the triggering Case when its SLA target has passed by marking the SLA as violated and identifying the Case as escalated.</description>
+        <name>Update_SLA_Breach</name>
+        <label>Update SLA Breach</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Add_Case_Owner_to_Notification_Recipients</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Escalation_Reason__c</field>
+            <value>
+                <stringValue>SLA Breach</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>IsEscalated</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SLA_Status__c</field>
+            <value>
+                <stringValue>Breached</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_SLA_Status</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SLA_Target__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>SLA_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Within SLA</stringValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <schedule>
+            <dayOfMonthToRun>0</dayOfMonthToRun>
+            <frequency>Daily</frequency>
+            <frequencyNumber>0</frequencyNumber>
+            <startDate>2026-10-03</startDate>
+            <startTime>10:00:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>Stores notification recipient IDs for SLA breach alerts.</description>
+        <name>Recipient_Ids</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

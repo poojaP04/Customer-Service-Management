@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Resolution_Summary</fullName>
+    <active>true</active>
+    <description>Prevents a Case from being marked Resolved when Resolution Notes have not been provided.</description>
+    <errorConditionFormula>AND(
+    ISPICKVAL(Status, &quot;Closed&quot;),
+    ISBLANK(Resolution_Notes__c)
+)</errorConditionFormula>
+    <errorDisplayField>Resolution_Notes__c</errorDisplayField>
+    <errorMessage>Resolution Notes are required before a Case can be closed.</errorMessage>
+</ValidationRule>
