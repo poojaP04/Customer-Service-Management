@@ -3,6 +3,11 @@
     <doesIncludeBosses>false</doesIncludeBosses>
     <doesSendEmailToMembers>false</doesSendEmailToMembers>
     <name>Billing Support Queue</name>
+    <queueMembers>
+        <users>
+            <user>parvekarpooja.a3a40f6fcb7c@agentforce.com</user>
+        </users>
+    </queueMembers>
     <queueSobject>
         <sobjectType>Case</sobjectType>
     </queueSobject>
