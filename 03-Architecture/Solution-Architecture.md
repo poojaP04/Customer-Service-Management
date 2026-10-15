@@ -320,17 +320,17 @@ SLA management will use Case information such as:
 * SLA Risk indicator
 * SLA Breach indicator
 
-Initial portfolio design targets:
+The implemented SLA calculation uses calendar time from Case creation.
 
-| Priority | SLA Target       |
-| -------- | ---------------- |
-| High     | 4 business hours |
-| Medium   | 1 business day   |
-| Low      | 3 business days  |
+| Priority | Implemented SLA Target |
+| -------- | ---------------------- |
+| High     | 4 calendar hours       |
+| Medium   | 1 calendar day         |
+| Low      | 3 calendar days        |
 
-These values are initial design assumptions.
+The Case SLA Management Flow calculates the SLA target when a Case is created based on its Priority. The SLA Status is initially set to Within SLA.
 
-The implementation will keep SLA-related configuration sufficiently flexible so that the values can be changed without redesigning the entire application.
+The current portfolio implementation uses calendar time for simplicity. A future enhancement can use Salesforce Business Hours and Milestones when business-hours-based SLA tracking is required.
 
 ---
 
@@ -345,24 +345,40 @@ Potential triggers include:
 * High-priority Case requiring additional attention
 * Manual escalation by an authorized Service Agent
 
-High-level process:
+The implemented escalation process uses a Scheduled-Triggered Flow that runs daily and evaluates Cases whose SLA target has passed.
 
-```text
-Active Case
-    |
-    v
-Evaluate Escalation Criteria
-    |
-    +---- Criteria Not Met ----> Continue Processing
-    |
-    +---- Criteria Met --------> Escalate Case
-                                      |
-                                      v
-                              Update Case Status /
-                              Escalation Indicator
-```
+### Implemented Automation Flow
 
-The exact escalation thresholds will be finalized during implementation.
+Case Created
+    ↓
+Case Assignment Flow
+    ↓
+Case SLA Management Flow
+    ↓
+Daily SLA Escalation Flow
+    ↓
+Check SLA Target
+    ↓
+SLA Breach
+    ↓
+Update Case
+    ├── SLA Status = Breached
+    ├── Is Escalated = True
+    └── Escalation Reason = SLA Breach
+    ↓
+Send Custom Notification
+    ↓
+Case Owner Queue
+
+The Case Assignment Flow routes the Case to the appropriate support queue based on Service Category.
+
+The Case SLA Management Flow calculates the SLA target based on Case Priority.
+
+The Daily SLA Escalation Flow identifies Cases whose SLA target has passed while the SLA Status is still Within SLA. It then marks the Case as breached and escalated and sends a custom notification to the Case Owner queue.
+
+The notification targets the specific Case so that the recipient can navigate directly to the Case.
+
+The current implementation performs a daily SLA sweep. Therefore, SLA breaches may be detected during the next scheduled execution rather than at the exact moment the SLA target is reached.
 
 ---
 
