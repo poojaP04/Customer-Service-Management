@@ -10,3 +10,10 @@ package.xml
 
 # LWC Jest
 **/__tests__/**
+
+# Ignore all layouts except Case and Service Request
+**/layouts/Account-*
+**/layouts/Contact-*
+**/layouts/Opportunity-*
+**/layouts/Lead-*
+**/layouts/WorkOrder-*
